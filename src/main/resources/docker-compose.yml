@@ -1,0 +1,50 @@
+version: "1"
+
+services:
+  springboot:
+    image: springboot
+    container_name: springboot_g
+    ports:
+      - "6002:6001"
+    volumes:
+      - /home/docker/springboot:/data
+    networks:
+      - mxb_net
+    depends_on:
+      - redis
+      - mysql
+
+  redis:
+    container_name: redis_g
+    image: redis:6.0.8
+#    unnecessary to expose , whatever service name or conntainer name
+#    ports:
+#      - "6379:6379"
+    volumes:
+      - /home/docker/redis/redis.conf:/etc/redis/redis.conf
+      - /home/docker/redis/data:/data
+    networks:
+      - mxb_net
+    command: redis-server /etc/redis/redis.conf
+
+  mysql:
+    container_name: mysql_g
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: '123456'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+      MYSQL_DATABASE: 'springboot'
+      MYSQL_USER: 'springboot_user'
+      MYSQL_PASSWORD: 'springboot_passwd'
+#    ports:
+#      - "3306:3306"
+    volumes:
+      - /home/docker/mysql/db:/var/lib/mysql
+      - /home/docker/mysql/conf/my.cnf:/etc/my.cnf
+      - /home/docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - mxb_net
+    command: --default-authentication-plugin=mysql_native_password
+
+networks:
+  mxb_net:
